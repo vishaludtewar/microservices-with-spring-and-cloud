@@ -1,0 +1,11 @@
+build:
+  version: "2.0"
+
+accounts:
+  message: "Welcome to MsiBank accounts related QA APIs "
+  contactDetails:
+    name: "Sachin Gholap - QA Lead"
+    email: "sachin@msibank.com"
+  onCallSupport:
+    - (166) 265-3775
+    - (166) 734-8351

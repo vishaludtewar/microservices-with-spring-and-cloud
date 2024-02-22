@@ -1,0 +1,12 @@
+build:
+  version: "3.0"
+
+accounts:
+  message: "Welcome to MsiBank accounts related local APIs"
+  contactDetails:
+    name: "Vishal Udtewar - Developer"
+    email: "vishal@msibank.com"
+  onCallSupport:
+    - 7507494515
+    - 1846574856
+

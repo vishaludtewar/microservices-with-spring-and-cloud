@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    #active: native  ---this native is uses for classpath and file system configuration
+    active: git
+  cloud:
+    config:
+      server:
+        #native:
+          #search-locations: "classpath:/config"
+          #search-locations: "file:///C://config"       ---Reading configuration from file system location
+        git:
+          uri: "https://github.com/vishaludtewar/new-microservices-config.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+encrypt:
+  key: "68GF56F2KLF68FRD659HGK8M"
+
+server:
+  port: 8071
