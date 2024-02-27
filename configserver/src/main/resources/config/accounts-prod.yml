@@ -1,0 +1,11 @@
+build:
+  version: "1.0"
+
+accounts:
+  message: "Welcome to MsiBank accounts related Prod APIs "
+  contactDetails:
+    name: "Anil Ainarkar - Product Owner"
+    email: "anil@msibank.com"
+  onCallSupport:
+    - (166) 265-3975
+    - (166) 734-8451
