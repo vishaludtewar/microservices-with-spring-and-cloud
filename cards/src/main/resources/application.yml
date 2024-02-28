@@ -51,3 +51,9 @@ info:
     name: "cards"
     description: "MSI Bank Cards Application"
     version: "1.0.0"
+
+logging:
+  level:
+    com:
+      msibank:
+        cards: DEBUG
