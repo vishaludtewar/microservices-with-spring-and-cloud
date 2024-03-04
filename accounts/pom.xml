@@ -98,7 +98,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>deathvish/${project.artifactId}:s9</name>
+						<name>deathvish/${project.artifactId}:s11</name>
 					</image>
 					<excludes>
 						<exclude>
