@@ -76,6 +76,31 @@ services:
     extends:
       file: common-config.yml
       service: network-deploy-service
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  tempo:
+    image: grafana/tempo
+    container_name: tempo
+    command: -config.file /etc/tempo-config.yml
+    ports:
+      - "3110:3100"
+      - "4317:4317"
+    volumes:
+      - ../observability/tempo/tempo.yml:/etc/tempo-config.yml
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   grafana:
     image: grafana/grafana:latest
     environment:
@@ -102,77 +127,78 @@ services:
       file: common-config.yml
       service: network-deploy-service
 
-    gateway:
-      image: nginx:latest
-      depends_on:
-        - read
-        - write
-      entrypoint:
-        - sh
-        - -euc
-        - |
-          cat <<EOF > /etc/nginx/nginx.conf
-          user  nginx;
-          worker_processes  5;  ## Default: 1
+  gateway:
+    image: nginx:latest
+    depends_on:
+      - read
+      - write
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        cat <<EOF > /etc/nginx/nginx.conf
+        user  nginx;
+        worker_processes  5;  ## Default: 1
 
-          events {
-            worker_connections   1000;
-          }
+        events {
+          worker_connections   1000;
+        }
 
-          http {
-            resolver 127.0.0.11;
+        http {
+          resolver 127.0.0.11;
 
-            server {
-              listen             3100;
+          server {
+            listen             3100;
 
-              location = / {
-                return 200 'OK';
-                auth_basic off;
-              }
+            location = / {
+              return 200 'OK';
+              auth_basic off;
+            }
 
-              location = /api/prom/push {
-                proxy_pass       http://write:3100\$$request_uri;
-              }
+            location = /api/prom/push {
+              proxy_pass       http://write:3100\$$request_uri;
+            }
 
-              location = /api/prom/tail {
-                proxy_pass       http://read:3100\$$request_uri;
-                proxy_set_header Upgrade \$$http_upgrade;
-                proxy_set_header Connection "upgrade";
-              }
+            location = /api/prom/tail {
+              proxy_pass       http://read:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
 
-              location ~ /api/prom/.* {
-                proxy_pass       http://read:3100\$$request_uri;
-              }
+            location ~ /api/prom/.* {
+              proxy_pass       http://read:3100\$$request_uri;
+            }
 
-              location = /loki/api/v1/push {
-                proxy_pass       http://write:3100\$$request_uri;
-              }
+            location = /loki/api/v1/push {
+              proxy_pass       http://write:3100\$$request_uri;
+            }
 
-              location = /loki/api/v1/tail {
-                proxy_pass       http://read:3100\$$request_uri;
-                proxy_set_header Upgrade \$$http_upgrade;
-                proxy_set_header Connection "upgrade";
-              }
+            location = /loki/api/v1/tail {
+              proxy_pass       http://read:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
 
-              location ~ /loki/api/.* {
-                proxy_pass       http://read:3100\$$request_uri;
-              }
+            location ~ /loki/api/.* {
+              proxy_pass       http://read:3100\$$request_uri;
             }
           }
-          EOF
-          /docker-entrypoint.sh nginx -g "daemon off;"
-      ports:
-        - "3100:3100"
-      healthcheck:
-        test: [ "CMD", "service", "nginx", "status" ]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      extends:
-        file: common-config.yml
-        service: network-deploy-service
+        }
+        EOF
+        /docker-entrypoint.sh nginx -g "daemon off;"
+    ports:
+      - "3100:3100"
+    healthcheck:
+      test: [ "CMD", "service", "nginx", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   configserver:
-    image: "deathvish/configserver:s9"
+    image: "deathvish/configserver:s11"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -187,7 +213,7 @@ services:
       service: microservice-base-config
 
   eurekaserver:
-    image: "deathvish/eurekaserver:s9"
+    image: "deathvish/eurekaserver:s11"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -204,7 +230,7 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   accounts:
-    image: "deathvish/accounts:s9"
+    image: "deathvish/accounts:s11"
     container_name: accounts-ms
     ports:
       - "8080:8080"
@@ -221,7 +247,7 @@ services:
       service: microservice-eureka-config
 
   loans:
-    image: "deathvish/loans:s9"
+    image: "deathvish/loans:s11"
     container_name: loans-ms
     ports:
       - "8090:8090"
@@ -238,7 +264,7 @@ services:
       service: microservice-eureka-config
 
   cards:
-    image: "deathvish/cards:s9"
+    image: "deathvish/cards:s11"
     container_name: cards-ms
     ports:
       - "9000:9000"
@@ -255,7 +281,7 @@ services:
       service: microservice-eureka-config
 
   gatewayserver:
-    image: "deathvish/gatewayserver:s9"
+    image: "deathvish/gatewayserver:s11"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
