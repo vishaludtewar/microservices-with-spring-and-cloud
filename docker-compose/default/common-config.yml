@@ -9,7 +9,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 800m
+          memory: 1500m
     environment:
       JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-1.32.0.jar"
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
